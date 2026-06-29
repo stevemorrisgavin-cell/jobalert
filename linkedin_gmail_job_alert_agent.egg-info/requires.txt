@@ -1,3 +1,4 @@
 python-dotenv==1.0.1
+
+[test]
 pytest==8.2.2
-setuptools>=68

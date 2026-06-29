@@ -66,6 +66,7 @@ GitHub cron uses UTC. `15:30 UTC` is `21:00 IST`.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
 pytest -q
 ```
 
@@ -75,6 +76,7 @@ On Windows PowerShell:
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+pip install -e .
 pytest -q
 ```
 
@@ -96,4 +98,3 @@ python -m job_agent.main report
 ## Important Limitation
 
 LinkedIn alert emails often do not include stipend details. Because this project does not scrape LinkedIn directly, it can only match stipend when the stipend appears in the email subject/body/link text.
-
