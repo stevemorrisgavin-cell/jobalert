@@ -23,6 +23,12 @@ def test_extracts_numeric_monthly():
     assert amount == 100_000
 
 
+def test_ignores_tracking_ids_as_stipend():
+    amount, raw = extract_best_monthly_stipend("midSig=12345678 otpToken=96430703 tracking id only")
+    assert amount == 0
+    assert raw == ""
+
+
 def test_opportunity_match_requires_core_signals():
     text = """
     LinkedIn Jobs: Women-only off-campus internship-cum-placement hiring for B.Tech 2028 batch.
@@ -43,4 +49,3 @@ def test_opportunity_rejects_low_stipend():
     result = evaluate_opportunity(text)
     assert result.matched is False
     assert result.stipend_monthly_inr == 50_000
-

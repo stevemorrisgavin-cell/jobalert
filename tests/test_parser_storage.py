@@ -24,6 +24,18 @@ def test_extract_links_from_html_alert():
     assert links == [("https://www.linkedin.com/jobs/view/123", "Women internship")]
 
 
+def test_extract_links_ignores_non_job_linkedin_urls():
+    alert = EmailAlert(
+        message_id="1",
+        subject="LinkedIn message",
+        sender="notifications-noreply@linkedin.com",
+        date="2026-06-29T00:00:00+00:00",
+        body_text="https://www.linkedin.com/comm/messaging https://www.linkedin.com/comm/feed",
+        body_html='<a href="https://www.linkedin.com/comm/messaging">Message</a>',
+    )
+    assert extract_links(alert) == []
+
+
 def test_merge_deduplicates_links(tmp_path: Path):
     path = tmp_path / "opportunities.json"
     existing = {}
@@ -38,4 +50,3 @@ def test_merge_deduplicates_links(tmp_path: Path):
     assert len(loaded) == 1
     item = next(iter(loaded.values()))
     assert item.score == 80
-

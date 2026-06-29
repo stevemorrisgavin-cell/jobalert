@@ -78,9 +78,20 @@ def extract_links(alert: EmailAlert) -> list[tuple[str, str]]:
     seen: set[str] = set()
     links: list[tuple[str, str]] = []
     for raw_url, label in html_links + text_links:
-        if "linkedin.com" not in raw_url.lower():
+        raw_lower = raw_url.lower()
+        if "linkedin.com" not in raw_lower:
             continue
-        if not any(token in raw_url.lower() for token in ("/jobs/", "currentJobId", "job")):
+        if not any(
+            token in raw_lower
+            for token in (
+                "/jobs/view/",
+                "/comm/jobs/view/",
+                "/jobs/collections/",
+                "/comm/jobs/collections/",
+                "/jobs/search",
+                "/comm/jobs/search",
+            )
+        ):
             continue
         normalized = normalize_link(raw_url)
         if normalized in seen:

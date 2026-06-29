@@ -128,7 +128,8 @@ def extract_best_monthly_stipend(text: str) -> tuple[int, str]:
         r"(?P<raw>(?P<num>\d+(?:\.\d+)?)\s*(?:lpa|LPA))",
         r"(?P<raw>(?P<num>\d+(?:\.\d+)?)\s*(?:lakh|lakhs|lac|lacs|L)\s*(?:/|per)?\s*(?P<period>month|monthly|pm|p\.m\.|year|yr|annum|pa|p\.a\.)?)",
         r"(?P<raw>(?P<num>one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s+(?:lakh|lakhs|lac|lacs)\s*(?:/|per)?\s*(?P<period>month|monthly|pm|p\.m\.|year|yr|annum|pa|p\.a\.)?)",
-        r"(?P<raw>(?:₹|rs\.?|inr)?\s*(?P<num>\d{5,8}(?:,\d{2,3})*)\s*(?:/|per)?\s*(?P<period>month|monthly|pm|p\.m\.|year|yr|annum|pa|p\.a\.)?)",
+        r"(?P<raw>(?:₹|rs\.?|inr)\s*(?P<num>\d{5,8}(?:,\d{2,3})*)\s*(?:/|per)?\s*(?P<period>month|monthly|pm|p\.m\.|year|yr|annum|pa|p\.a\.)?)",
+        r"(?P<raw>(?P<num>\d{5,8}(?:,\d{2,3})*)\s*(?:/|per)\s*(?P<period>month|monthly|pm|p\.m\.|year|yr|annum|pa|p\.a\.))",
     ]
 
     for pattern in patterns:
@@ -201,4 +202,3 @@ def evaluate_opportunity(text: str) -> FilterResult:
         score=score,
         reasons=reasons,
     )
-

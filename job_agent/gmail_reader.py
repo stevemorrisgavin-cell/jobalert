@@ -102,7 +102,15 @@ def read_linkedin_alerts(config: Config) -> list[EmailAlert]:
             body_text, body_html = _extract_bodies(raw)
             sender = _decode_header_value(raw.get("From"))
             subject = _decode_header_value(raw.get("Subject"))
-            if "linkedin" not in sender.lower() and "linkedin" not in subject.lower():
+            sender_subject = f"{sender} {subject}".lower()
+            is_job_alert = (
+                "jobs-listings@linkedin.com" in sender_subject
+                or "job alert" in sender_subject
+                or "is hiring" in sender_subject
+                or "jobs for you" in sender_subject
+                or "top job" in sender_subject
+            )
+            if "linkedin" not in sender_subject or not is_job_alert:
                 continue
             alerts.append(
                 EmailAlert(
@@ -115,4 +123,3 @@ def read_linkedin_alerts(config: Config) -> list[EmailAlert]:
                 )
             )
     return alerts
-
