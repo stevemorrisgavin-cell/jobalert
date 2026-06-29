@@ -1,18 +1,18 @@
 {
-  "run_at_utc": "2026-06-29T07:05:52+00:00",
+  "run_at_utc": "2026-06-29T07:09:02+00:00",
   "lookback_days": 21,
-  "linkedin_alert_emails_read": 15,
-  "linkedin_job_links_found": 138,
-  "opportunities_checked": 146,
+  "linkedin_alert_emails_read": 2,
+  "linkedin_job_links_found": 40,
+  "opportunities_checked": 40,
   "matched_this_run": 0,
   "added_this_run": 0,
   "total_saved_matches": 0,
   "rejection_counts": {
-    "missing_link": 8,
-    "missing_women_or_diversity_signal": 146,
-    "missing_2028_signal": 146,
-    "missing_internship_signal": 106,
-    "missing_minimum_stipend": 1
+    "missing_link": 0,
+    "missing_women_or_diversity_signal": 40,
+    "missing_2028_signal": 40,
+    "missing_internship_signal": 20,
+    "missing_minimum_stipend": 40
   },
-  "active_candidates_saved": 138
+  "active_candidates_saved": 40
 }
