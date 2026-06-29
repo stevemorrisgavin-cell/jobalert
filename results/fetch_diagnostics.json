@@ -1,5 +1,5 @@
 {
-  "run_at_utc": "2026-06-29T06:58:59+00:00",
+  "run_at_utc": "2026-06-29T07:05:52+00:00",
   "lookback_days": 21,
   "linkedin_alert_emails_read": 15,
   "linkedin_job_links_found": 138,
@@ -13,5 +13,6 @@
     "missing_2028_signal": 146,
     "missing_internship_signal": 106,
     "missing_minimum_stipend": 1
-  }
+  },
+  "active_candidates_saved": 138
 }
