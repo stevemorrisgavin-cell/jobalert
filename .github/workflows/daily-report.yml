@@ -1,9 +1,6 @@
 name: Daily LinkedIn Job Report
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     # 9:00 PM IST = 3:30 PM UTC.
     - cron: "30 15 * * *"

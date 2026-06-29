@@ -1,9 +1,6 @@
 name: Search LinkedIn Gmail Alerts
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: "0 */3 * * *"
   workflow_dispatch:
