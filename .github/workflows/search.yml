@@ -1,6 +1,9 @@
 name: Search LinkedIn Gmail Alerts
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: "0 */3 * * *"
   workflow_dispatch:
@@ -63,6 +66,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Commit updated results
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -71,5 +75,6 @@ jobs:
             echo "No result changes to commit"
           else
             git commit -m "Update LinkedIn job alert results"
+            git pull --rebase origin main
             git push
           fi
