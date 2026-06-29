@@ -1,0 +1,64 @@
+name: Search LinkedIn Gmail Alerts
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: job-alert-agent-results
+  cancel-in-progress: false
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    env:
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      REPORT_TO: ${{ secrets.REPORT_TO }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Fetch and save matches
+        run: python -m job_agent.main fetch
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkedin-job-results
+          path: |
+            results/opportunities.csv
+            results/opportunities.json
+            logs/agent.log
+          if-no-files-found: warn
+
+      - name: Commit updated results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/opportunities.csv results/opportunities.json
+          if git diff --cached --quiet; then
+            echo "No result changes to commit"
+          else
+            git commit -m "Update LinkedIn job alert results"
+            git push
+          fi
