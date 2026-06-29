@@ -24,6 +24,8 @@ class Config:
     lookback_days: int = 21
     results_json: Path = RESULTS_DIR / "opportunities.json"
     results_csv: Path = RESULTS_DIR / "opportunities.csv"
+    candidates_json: Path = RESULTS_DIR / "active_candidates.json"
+    candidates_csv: Path = RESULTS_DIR / "active_candidates.csv"
     fetch_diagnostics_json: Path = RESULTS_DIR / "fetch_diagnostics.json"
     report_json: Path = RESULTS_DIR / "daily_report.json"
     log_file: Path = LOGS_DIR / "agent.log"

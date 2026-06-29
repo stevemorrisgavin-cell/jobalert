@@ -63,6 +63,8 @@ jobs:
           path: |
             results/opportunities.csv
             results/opportunities.json
+            results/active_candidates.csv
+            results/active_candidates.json
             results/fetch_diagnostics.json
             results/daily_report.json
             logs/agent.log

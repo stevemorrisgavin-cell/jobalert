@@ -83,3 +83,31 @@ def save_csv(path: Path, opportunities: dict[str, Opportunity]) -> None:
             row["matched_reasons"] = "; ".join(item.matched_reasons)
             writer.writerow({field: row.get(field, "") for field in CSV_FIELDS})
 
+
+def save_candidate_files(json_path: Path, csv_path: Path, candidates: list[dict]) -> None:
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    ordered = sorted(candidates, key=lambda item: item.get("score", 0), reverse=True)
+    json_path.write_text(json.dumps(ordered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    fields = [
+        "link",
+        "title",
+        "score",
+        "strict_match",
+        "stipend_text",
+        "stipend_monthly_inr",
+        "missing_reasons",
+        "matched_reasons",
+        "email_subject",
+        "email_date",
+        "snippet",
+    ]
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for candidate in ordered:
+            row = dict(candidate)
+            row["missing_reasons"] = "; ".join(row.get("missing_reasons", []))
+            row["matched_reasons"] = "; ".join(row.get("matched_reasons", []))
+            writer.writerow({field: row.get(field, "") for field in fields})

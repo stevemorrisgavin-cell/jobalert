@@ -12,7 +12,7 @@ from .logging_setup import setup_logging
 from .models import Opportunity
 from .parser import alert_search_text, compact_text, extract_links, guess_title
 from .reporter import send_daily_report
-from .storage import load_opportunities, merge_opportunities, save_csv, save_json
+from .storage import load_opportunities, merge_opportunities, save_candidate_files, save_csv, save_json
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ def fetch() -> int:
     alerts = read_linkedin_alerts(config)
     existing = load_opportunities(config.results_json)
     matches: list[Opportunity] = []
+    candidates: list[dict] = []
     diagnostics = {
         "run_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "lookback_days": config.lookback_days,
@@ -52,6 +53,34 @@ def fetch() -> int:
         for link, label in links:
             result = evaluate_opportunity(" ".join([label, search_text]))
             diagnostics["opportunities_checked"] += 1
+            missing_reasons = []
+            if not link:
+                missing_reasons.append("missing LinkedIn job link")
+            if not result.women_only_match:
+                missing_reasons.append("missing women/diversity signal")
+            if not result.grad_2028_match:
+                missing_reasons.append("missing 2028 signal")
+            if not result.internship_match:
+                missing_reasons.append("missing internship signal")
+            if result.stipend_monthly_inr < 100_000:
+                missing_reasons.append("missing stipend >= INR 1,00,000/month")
+
+            if link:
+                candidates.append(
+                    {
+                        "link": link,
+                        "title": guess_title(label, search_text),
+                        "score": result.score,
+                        "strict_match": result.matched,
+                        "stipend_text": result.stipend_text,
+                        "stipend_monthly_inr": result.stipend_monthly_inr,
+                        "missing_reasons": missing_reasons,
+                        "matched_reasons": result.reasons,
+                        "email_subject": alert.subject,
+                        "email_date": alert.date,
+                        "snippet": compact_text(search_text, 500),
+                    }
+                )
             if not result.matched or not link:
                 if not link:
                     diagnostics["rejection_counts"]["missing_link"] += 1
@@ -89,9 +118,11 @@ def fetch() -> int:
     added = merge_opportunities(existing, matches)
     save_json(config.results_json, existing)
     save_csv(config.results_csv, existing)
+    save_candidate_files(config.candidates_json, config.candidates_csv, candidates)
     diagnostics["matched_this_run"] = len(matches)
     diagnostics["added_this_run"] = added
     diagnostics["total_saved_matches"] = len(existing)
+    diagnostics["active_candidates_saved"] = len(candidates)
     config.fetch_diagnostics_json.write_text(
         json.dumps(diagnostics, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
