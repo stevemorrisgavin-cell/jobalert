@@ -63,6 +63,7 @@ jobs:
           path: |
             results/opportunities.csv
             results/opportunities.json
+            results/fetch_diagnostics.json
             results/daily_report.json
             logs/agent.log
           if-no-files-found: warn

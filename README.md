@@ -11,6 +11,7 @@ The agent does not scrape LinkedIn. It only reads Gmail alert email content.
 - Understands stipend forms like `1 lakh/month`, `one lakh per month`, `100000/month`, `12 LPA`, and higher values.
 - Deduplicates normalized LinkedIn job links.
 - Persists results to `results/opportunities.json` and `results/opportunities.csv`.
+- Writes `results/fetch_diagnostics.json` so empty runs still show how many emails and links were checked.
 - Sends a daily email report using Gmail SMTP.
 - Runs on GitHub Actions every 3 hours plus a daily 9 PM IST report.
 

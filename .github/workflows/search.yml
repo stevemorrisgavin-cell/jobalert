@@ -62,6 +62,7 @@ jobs:
           path: |
             results/opportunities.csv
             results/opportunities.json
+            results/fetch_diagnostics.json
             logs/agent.log
           if-no-files-found: warn
 
@@ -70,7 +71,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results/opportunities.csv results/opportunities.json
+          git add results/opportunities.csv results/opportunities.json results/fetch_diagnostics.json
           if git diff --cached --quiet; then
             echo "No result changes to commit"
           else

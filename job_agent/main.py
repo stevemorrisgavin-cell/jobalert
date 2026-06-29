@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+from datetime import datetime, timezone
 
 from .config import load_config
 from .filters import evaluate_opportunity
@@ -22,16 +24,45 @@ def fetch() -> int:
     alerts = read_linkedin_alerts(config)
     existing = load_opportunities(config.results_json)
     matches: list[Opportunity] = []
+    diagnostics = {
+        "run_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "lookback_days": config.lookback_days,
+        "linkedin_alert_emails_read": len(alerts),
+        "linkedin_job_links_found": 0,
+        "opportunities_checked": 0,
+        "matched_this_run": 0,
+        "added_this_run": 0,
+        "total_saved_matches": 0,
+        "rejection_counts": {
+            "missing_link": 0,
+            "missing_women_or_diversity_signal": 0,
+            "missing_2028_signal": 0,
+            "missing_internship_signal": 0,
+            "missing_minimum_stipend": 0,
+        },
+    }
 
     for alert in alerts:
         search_text = alert_search_text(alert)
         links = extract_links(alert)
+        diagnostics["linkedin_job_links_found"] += len(links)
         if not links:
             links = [("", "")]
 
         for link, label in links:
             result = evaluate_opportunity(" ".join([label, search_text]))
+            diagnostics["opportunities_checked"] += 1
             if not result.matched or not link:
+                if not link:
+                    diagnostics["rejection_counts"]["missing_link"] += 1
+                if not result.women_only_match:
+                    diagnostics["rejection_counts"]["missing_women_or_diversity_signal"] += 1
+                if not result.grad_2028_match:
+                    diagnostics["rejection_counts"]["missing_2028_signal"] += 1
+                if not result.internship_match:
+                    diagnostics["rejection_counts"]["missing_internship_signal"] += 1
+                if result.stipend_monthly_inr < 100_000:
+                    diagnostics["rejection_counts"]["missing_minimum_stipend"] += 1
                 continue
 
             matches.append(
@@ -58,6 +89,13 @@ def fetch() -> int:
     added = merge_opportunities(existing, matches)
     save_json(config.results_json, existing)
     save_csv(config.results_csv, existing)
+    diagnostics["matched_this_run"] = len(matches)
+    diagnostics["added_this_run"] = added
+    diagnostics["total_saved_matches"] = len(existing)
+    config.fetch_diagnostics_json.write_text(
+        json.dumps(diagnostics, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     LOGGER.info("Fetch complete alerts=%s matches=%s added=%s total=%s", len(alerts), len(matches), added, len(existing))
     print(f"Fetch complete: alerts={len(alerts)} matches={len(matches)} added={added} total={len(existing)}")
     return 0
@@ -88,4 +126,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
