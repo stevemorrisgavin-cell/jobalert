@@ -22,6 +22,7 @@ class Config:
     smtp_port: int = 465
     mailbox: str = "[Gmail]/All Mail"
     lookback_days: int = 90
+    max_emails: int = 200
     results_json: Path = RESULTS_DIR / "opportunities.json"
     results_csv: Path = RESULTS_DIR / "opportunities.csv"
     candidates_json: Path = RESULTS_DIR / "active_candidates.json"
@@ -59,6 +60,7 @@ def load_config() -> Config:
         smtp_port=int(os.getenv("SMTP_PORT", "465")),
         mailbox=os.getenv("GMAIL_MAILBOX", "[Gmail]/All Mail").strip(),
         lookback_days=int(os.getenv("LOOKBACK_DAYS", "90")),
+        max_emails=int(os.getenv("MAX_EMAILS", "200")),
     )
 
 

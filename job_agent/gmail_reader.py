@@ -99,9 +99,9 @@ def _select_mailbox(client: imaplib.IMAP4_SSL, preferred_mailbox: str) -> str:
 
 def _search_linkedin_message_ids(client: imaplib.IMAP4_SSL, lookback_days: int) -> list[bytes]:
     raw_queries = [
-        f'newer_than:{lookback_days}d from:(linkedin.com)',
-        f'newer_than:{lookback_days}d (from:linkedin OR from:linkedin.com)',
-        f'newer_than:{lookback_days}d linkedin',
+        f'newer_than:{lookback_days}d from:(linkedin.com) 2028',
+        f'newer_than:{lookback_days}d (from:linkedin OR from:linkedin.com) 2028',
+        f'newer_than:{lookback_days}d linkedin 2028',
     ]
     for raw_query in raw_queries:
         try:
@@ -118,9 +118,9 @@ def _search_linkedin_message_ids(client: imaplib.IMAP4_SSL, lookback_days: int) 
 
     since = (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%d-%b-%Y")
     queries = [
-        f'(SINCE {since} FROM "linkedin")',
-        f'(SINCE {since} FROM "linkedin.com")',
-        f'(SINCE {since} TEXT "LinkedIn")',
+        f'(SINCE {since} FROM "linkedin" TEXT "2028")',
+        f'(SINCE {since} FROM "linkedin.com" TEXT "2028")',
+        f'(SINCE {since} TEXT "LinkedIn" TEXT "2028")',
     ]
     message_ids: set[bytes] = set()
     for query in queries:
@@ -147,17 +147,24 @@ def read_linkedin_alerts(config: Config) -> list[EmailAlert]:
         LOGGER.info("Selected Gmail mailbox=%s", selected_mailbox)
 
         message_ids = _search_linkedin_message_ids(client, config.lookback_days)
+        if len(message_ids) > config.max_emails:
+            LOGGER.info("Limiting LinkedIn emails from %s to newest %s", len(message_ids), config.max_emails)
+            message_ids = message_ids[-config.max_emails :]
         LOGGER.info("Found %s candidate LinkedIn emails", len(message_ids))
         for message_id in message_ids:
-            status, msg_data = client.fetch(message_id, "(RFC822)")
-            if status != "OK":
-                LOGGER.warning("Skipping message %s because fetch failed: %s", message_id, status)
+            try:
+                status, msg_data = client.fetch(message_id, "(RFC822)")
+                if status != "OK" or not msg_data or not isinstance(msg_data[0], tuple):
+                    LOGGER.warning("Skipping message %s because fetch failed: %s", message_id, status)
+                    continue
+                raw_bytes = msg_data[0][1]
+                raw = email.message_from_bytes(raw_bytes)
+                body_text, body_html = _extract_bodies(raw)
+                sender = _decode_header_value(raw.get("From"))
+                subject = _decode_header_value(raw.get("Subject"))
+            except Exception as exc:
+                LOGGER.warning("Skipping message %s after parse/fetch error: %s", message_id, exc)
                 continue
-            raw_bytes = msg_data[0][1]
-            raw = email.message_from_bytes(raw_bytes)
-            body_text, body_html = _extract_bodies(raw)
-            sender = _decode_header_value(raw.get("From"))
-            subject = _decode_header_value(raw.get("Subject"))
             sender_subject = f"{sender} {subject}".lower()
             is_job_alert = (
                 "jobs-listings@linkedin.com" in sender_subject
