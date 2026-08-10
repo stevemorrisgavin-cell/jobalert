@@ -91,9 +91,13 @@ def _select_mailbox(client: imaplib.IMAP4_SSL, preferred_mailbox: str) -> str:
         if not mailbox or mailbox in seen:
             continue
         seen.add(mailbox)
-        status, _ = client.select(mailbox, readonly=True)
-        if status == "OK":
-            return mailbox
+        try:
+            status, _ = client.select(mailbox, readonly=True)
+            if status == "OK":
+                return mailbox
+        except Exception as exc:
+            LOGGER.warning("Could not select mailbox=%s error=%s", mailbox, exc)
+            continue
     raise RuntimeError("Could not select Gmail mailbox. Tried All Mail and INBOX.")
 
 
