@@ -29,23 +29,24 @@ def test_ignores_tracking_ids_as_stipend():
     assert raw == ""
 
 
-def test_opportunity_match_requires_core_signals():
+def test_opportunity_match_requires_only_2028_signal():
     text = """
-    LinkedIn Jobs: Women-only off-campus internship-cum-placement hiring for B.Tech 2028 batch.
-    Stipend one lakh per month. PPO after 8th semester internship.
+    LinkedIn Jobs: software engineer role for B.Tech 2028 batch.
     """
     result = evaluate_opportunity(text)
     assert result.matched is True
-    assert result.women_only_match is True
     assert result.grad_2028_match is True
-    assert result.internship_match is True
-    assert result.ppo_or_placement_match is True
-    assert result.eighth_semester_match is True
-    assert result.stipend_monthly_inr == 100_000
 
 
-def test_opportunity_rejects_low_stipend():
-    text = "Women diversity internship for 2028 batch. Stipend INR 50000 per month."
+def test_opportunity_accepts_2028_without_stipend_or_women_signal():
+    text = "Off-campus role for 2028 passouts. No stipend mentioned."
+    result = evaluate_opportunity(text)
+    assert result.matched is True
+    assert result.stipend_monthly_inr == 0
+    assert result.women_only_match is False
+
+
+def test_opportunity_rejects_without_2028_signal():
+    text = "Women diversity internship with INR 100000 per month stipend."
     result = evaluate_opportunity(text)
     assert result.matched is False
-    assert result.stipend_monthly_inr == 50_000

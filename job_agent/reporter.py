@@ -16,13 +16,13 @@ IST = ZoneInfo("Asia/Kolkata")
 
 def build_report(opportunities: list[Opportunity]) -> tuple[str, str]:
     today = datetime.now(IST).strftime("%d %b %Y")
-    subject = f"Qualified LinkedIn internship jobs - {today} ({len(opportunities)})"
+    subject = f"Qualified LinkedIn 2028 jobs - {today} ({len(opportunities)})"
 
     if not opportunities:
-        return subject, f"No qualified jobs found for {today}.\n"
+        return subject, f"No qualified 2028 jobs found for {today}.\n"
 
     lines = [
-        f"Qualified LinkedIn internship jobs - {today}",
+        f"Qualified LinkedIn 2028 jobs - {today}",
         "",
         f"Total qualified jobs: {len(opportunities)}",
         "",
@@ -33,7 +33,6 @@ def build_report(opportunities: list[Opportunity]) -> tuple[str, str]:
                 f"{index}. {item.title}",
                 f"   Apply link: {item.link}",
                 f"   Post/source link: {item.link}",
-                f"   Stipend: {item.stipend_text or 'matched'} (~INR {item.stipend_monthly_inr:,}/month)",
                 f"   Why included: {', '.join(item.matched_reasons)}",
                 "",
             ]

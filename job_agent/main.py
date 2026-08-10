@@ -35,11 +35,8 @@ def fetch() -> int:
         "added_this_run": 0,
         "total_saved_matches": 0,
         "rejection_counts": {
-            "missing_link": 0,
-            "missing_women_or_diversity_signal": 0,
             "missing_2028_signal": 0,
-            "missing_internship_signal": 0,
-            "missing_minimum_stipend": 0,
+            "missing_link": 0,
         },
     }
 
@@ -56,14 +53,8 @@ def fetch() -> int:
             missing_reasons = []
             if not link:
                 missing_reasons.append("missing LinkedIn job link")
-            if not result.women_only_match:
-                missing_reasons.append("missing women/diversity signal")
             if not result.grad_2028_match:
                 missing_reasons.append("missing 2028 signal")
-            if not result.internship_match:
-                missing_reasons.append("missing internship signal")
-            if result.stipend_monthly_inr < 100_000:
-                missing_reasons.append("missing stipend >= INR 1,00,000/month")
 
             if link:
                 candidates.append(
@@ -84,14 +75,8 @@ def fetch() -> int:
             if not result.matched or not link:
                 if not link:
                     diagnostics["rejection_counts"]["missing_link"] += 1
-                if not result.women_only_match:
-                    diagnostics["rejection_counts"]["missing_women_or_diversity_signal"] += 1
                 if not result.grad_2028_match:
                     diagnostics["rejection_counts"]["missing_2028_signal"] += 1
-                if not result.internship_match:
-                    diagnostics["rejection_counts"]["missing_internship_signal"] += 1
-                if result.stipend_monthly_inr < 100_000:
-                    diagnostics["rejection_counts"]["missing_minimum_stipend"] += 1
                 continue
 
             matches.append(

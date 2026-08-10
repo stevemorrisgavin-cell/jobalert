@@ -4,22 +4,6 @@ import re
 from dataclasses import dataclass
 
 
-MIN_MONTHLY_STIPEND_INR = 100_000
-
-WOMEN_PATTERNS = [
-    r"\bwomen\b",
-    r"\bwoman\b",
-    r"\bfemale\b",
-    r"\bgirls?\b",
-    r"\bdiversity\b",
-    r"\bwomen[- ]only\b",
-    r"\bfemale candidates?\b",
-    r"\bwomen candidates?\b",
-    r"\bshecodes\b",
-    r"\bherkey\b",
-    r"\bwomen in tech\b",
-]
-
 GRAD_2028_PATTERNS = [
     r"\b2028\b",
     r"\bbatch of 2028\b",
@@ -164,31 +148,24 @@ def extract_best_monthly_stipend(text: str) -> tuple[int, str]:
 
 
 def evaluate_opportunity(text: str) -> FilterResult:
-    women = _has_any(WOMEN_PATTERNS, text)
+    women = False
     grad_2028 = _has_any(GRAD_2028_PATTERNS, text)
     internship = _has_any(INTERNSHIP_PATTERNS, text)
     off_campus = _has_any(OFF_CAMPUS_PATTERNS, text)
     ppo = _has_any(PPO_PATTERNS, text)
     eighth_sem = _has_any(EIGHTH_SEM_PATTERNS, text)
     stipend_monthly, stipend_text = extract_best_monthly_stipend(text)
-    stipend_ok = stipend_monthly >= MIN_MONTHLY_STIPEND_INR
 
     reasons: list[str] = []
     score = 0
     for label, matched, points in [
-        ("women-only/diversity signal", women, 30),
-        ("2028 graduate signal", grad_2028, 25),
-        ("internship signal", internship, 15),
-        ("off-campus/early-career signal", off_campus, 10),
-        ("PPO/placement signal", ppo, 10),
-        ("8th semester preference", eighth_sem, 5),
-        ("stipend >= INR 1,00,000/month", stipend_ok, 30),
+        ("2028 graduate/passout/batch signal", grad_2028, 100),
     ]:
         if matched:
             reasons.append(label)
             score += points
 
-    matched = women and grad_2028 and internship and stipend_ok
+    matched = grad_2028
     return FilterResult(
         matched=matched,
         stipend_text=stipend_text,
