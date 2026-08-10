@@ -21,14 +21,11 @@ def fetch() -> int:
     config = load_config()
     setup_logging(config)
 
-    alerts = read_linkedin_alerts(config)
-    existing = load_opportunities(config.results_json)
-    matches: list[Opportunity] = []
-    candidates: list[dict] = []
     diagnostics = {
         "run_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "lookback_days": config.lookback_days,
-        "linkedin_alert_emails_read": len(alerts),
+        "mailbox": config.mailbox,
+        "linkedin_alert_emails_read": 0,
         "linkedin_job_links_found": 0,
         "opportunities_checked": 0,
         "matched_this_run": 0,
@@ -39,6 +36,22 @@ def fetch() -> int:
             "missing_link": 0,
         },
     }
+    try:
+        alerts = read_linkedin_alerts(config)
+    except Exception as exc:
+        diagnostics["gmail_fetch_error"] = f"{type(exc).__name__}: {exc}"
+        config.fetch_diagnostics_json.write_text(
+            json.dumps(diagnostics, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        LOGGER.exception("Gmail fetch failed")
+        print(f"Gmail fetch failed: {type(exc).__name__}: {exc}")
+        return 0
+
+    diagnostics["linkedin_alert_emails_read"] = len(alerts)
+    existing = load_opportunities(config.results_json)
+    matches: list[Opportunity] = []
+    candidates: list[dict] = []
 
     for alert in alerts:
         search_text = alert_search_text(alert)
