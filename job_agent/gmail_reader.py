@@ -103,9 +103,9 @@ def _select_mailbox(client: imaplib.IMAP4_SSL, preferred_mailbox: str) -> str:
 
 def _search_linkedin_message_ids(client: imaplib.IMAP4_SSL, lookback_days: int) -> list[bytes]:
     raw_queries = [
-        f'newer_than:{lookback_days}d from:(linkedin.com) 2028',
-        f'newer_than:{lookback_days}d (from:linkedin OR from:linkedin.com) 2028',
-        f'newer_than:{lookback_days}d linkedin 2028',
+        f'newer_than:{lookback_days}d from:(jobs-listings@linkedin.com)',
+        f'newer_than:{lookback_days}d from:(linkedin.com) (job OR jobs OR hiring)',
+        f'newer_than:{lookback_days}d (from:linkedin OR from:linkedin.com)',
     ]
     for raw_query in raw_queries:
         try:
@@ -122,9 +122,9 @@ def _search_linkedin_message_ids(client: imaplib.IMAP4_SSL, lookback_days: int) 
 
     since = (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%d-%b-%Y")
     queries = [
-        f'(SINCE {since} FROM "linkedin" TEXT "2028")',
-        f'(SINCE {since} FROM "linkedin.com" TEXT "2028")',
-        f'(SINCE {since} TEXT "LinkedIn" TEXT "2028")',
+        f'(SINCE {since} FROM "jobs-listings@linkedin.com")',
+        f'(SINCE {since} FROM "linkedin")',
+        f'(SINCE {since} FROM "linkedin.com")',
     ]
     message_ids: set[bytes] = set()
     for query in queries:
