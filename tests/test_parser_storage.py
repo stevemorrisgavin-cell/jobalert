@@ -36,6 +36,18 @@ def test_extract_links_ignores_non_job_linkedin_urls():
     assert extract_links(alert) == []
 
 
+def test_extract_links_ignores_job_collections():
+    alert = EmailAlert(
+        message_id="1",
+        subject="LinkedIn jobs",
+        sender="jobs-listings@linkedin.com",
+        date="2026-06-29T00:00:00+00:00",
+        body_text="https://www.linkedin.com/comm/jobs/collections/recommended",
+        body_html='<a href="https://www.linkedin.com/jobs/search?keywords=2028">Search</a>',
+    )
+    assert extract_links(alert) == []
+
+
 def test_merge_deduplicates_links(tmp_path: Path):
     path = tmp_path / "opportunities.json"
     existing = {}

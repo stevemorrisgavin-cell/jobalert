@@ -86,10 +86,6 @@ def extract_links(alert: EmailAlert) -> list[tuple[str, str]]:
             for token in (
                 "/jobs/view/",
                 "/comm/jobs/view/",
-                "/jobs/collections/",
-                "/comm/jobs/collections/",
-                "/jobs/search",
-                "/comm/jobs/search",
             )
         ):
             continue

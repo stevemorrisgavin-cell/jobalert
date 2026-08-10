@@ -20,8 +20,8 @@ class Config:
     imap_host: str = "imap.gmail.com"
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 465
-    mailbox: str = "INBOX"
-    lookback_days: int = 21
+    mailbox: str = "[Gmail]/All Mail"
+    lookback_days: int = 90
     results_json: Path = RESULTS_DIR / "opportunities.json"
     results_csv: Path = RESULTS_DIR / "opportunities.csv"
     candidates_json: Path = RESULTS_DIR / "active_candidates.json"
@@ -57,8 +57,8 @@ def load_config() -> Config:
         imap_host=os.getenv("IMAP_HOST", "imap.gmail.com").strip(),
         smtp_host=os.getenv("SMTP_HOST", "smtp.gmail.com").strip(),
         smtp_port=int(os.getenv("SMTP_PORT", "465")),
-        mailbox=os.getenv("GMAIL_MAILBOX", "INBOX").strip(),
-        lookback_days=int(os.getenv("LOOKBACK_DAYS", "21")),
+        mailbox=os.getenv("GMAIL_MAILBOX", "[Gmail]/All Mail").strip(),
+        lookback_days=int(os.getenv("LOOKBACK_DAYS", "90")),
     )
 
 
