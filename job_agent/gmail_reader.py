@@ -105,28 +105,34 @@ def _search_linkedin_message_ids(client: imaplib.IMAP4_SSL, lookback_days: int) 
     ]
     for raw_query in raw_queries:
         try:
-            status, data = client.search(None, "X-GM-RAW", raw_query)
+            status, data = client.search(None, "X-GM-RAW", f'"{raw_query}"')
             if status == "OK":
                 ids = data[0].split()
                 LOGGER.info("Gmail raw search matched %s emails with query=%s", len(ids), raw_query)
                 if ids:
                     return ids
-        except imaplib.IMAP4.error as exc:
+            else:
+                LOGGER.warning("Gmail raw search returned status=%s query=%s", status, raw_query)
+        except Exception as exc:
             LOGGER.warning("Gmail raw search failed for query=%s error=%s", raw_query, exc)
 
     since = (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%d-%b-%Y")
     queries = [
-        f'(SINCE "{since}" FROM "linkedin")',
-        f'(SINCE "{since}" FROM "linkedin.com")',
-        f'(SINCE "{since}" TEXT "LinkedIn")',
+        f'(SINCE {since} FROM "linkedin")',
+        f'(SINCE {since} FROM "linkedin.com")',
+        f'(SINCE {since} TEXT "LinkedIn")',
     ]
     message_ids: set[bytes] = set()
     for query in queries:
-        status, data = client.search(None, query)
-        if status != "OK":
-            LOGGER.warning("IMAP search failed query=%s status=%s", query, status)
+        try:
+            status, data = client.search(None, query)
+            if status != "OK":
+                LOGGER.warning("IMAP search failed query=%s status=%s", query, status)
+                continue
+            message_ids.update(data[0].split())
+        except Exception as exc:
+            LOGGER.warning("IMAP search failed query=%s error=%s", query, exc)
             continue
-        message_ids.update(data[0].split())
     LOGGER.info("Fallback IMAP search matched %s unique LinkedIn emails", len(message_ids))
     return sorted(message_ids, key=lambda value: int(value) if value.isdigit() else 0)
 
