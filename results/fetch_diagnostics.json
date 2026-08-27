@@ -1,16 +1,16 @@
 {
-  "run_at_utc": "2026-08-27T00:25:21+00:00",
+  "run_at_utc": "2026-08-27T13:43:33+00:00",
   "lookback_days": 90,
   "mailbox": "[Gmail]/All Mail",
-  "linkedin_alert_emails_read": 5,
-  "linkedin_job_links_found": 90,
-  "opportunities_checked": 90,
+  "linkedin_alert_emails_read": 4,
+  "linkedin_job_links_found": 72,
+  "opportunities_checked": 72,
   "matched_this_run": 0,
   "added_this_run": 0,
   "total_saved_matches": 0,
   "rejection_counts": {
-    "missing_2028_signal": 90,
+    "missing_2028_signal": 72,
     "missing_link": 0
   },
-  "active_candidates_saved": 90
+  "active_candidates_saved": 72
 }
